@@ -290,7 +290,7 @@ class IRF(metaclass=abc.ABCMeta):
 
         coord_values = coords_default.values()
         
-        print("will data = self._interpolate(coords_default.values(), method=method)") 
+        print("will data = self._interpolate(coords_default.values(), method=method)", self._interpolate) 
         t0 = time.time()
         data = self._interpolate(coord_values, method=method)
         print(threading.get_ident(), "time to interpolate: ", time.time() - t0)
