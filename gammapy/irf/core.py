@@ -2,6 +2,7 @@ import abc
 import logging
 from copy import deepcopy
 from enum import Enum
+import time
 import numpy as np
 from astropy import units as u
 from astropy.io import fits
@@ -278,8 +279,13 @@ class IRF(metaclass=abc.ABCMeta):
             if coord is not None:
                 coords_default[key] = u.Quantity(coord, copy=False)
 
+        print("will data = self._interpolate(coords_default.values(), method=method)") 
+        t0 = time.time()
         data = self._interpolate(coords_default.values(), method=method)
+        print("time to interpolate: ", time.time() - t0)
 
+        print("will broadcast etc in evaluate")
+        t0 = time.time()
         if self.interp_kwargs["fill_value"] is not None:
             idxs = self.axes.coord_to_idx(coords_default, clip=False)
             invalid = np.broadcast_arrays(*[idx == -1 for idx in idxs])
@@ -288,6 +294,7 @@ class IRF(metaclass=abc.ABCMeta):
                 mask = mask.squeeze()
             data[mask] = self.interp_kwargs["fill_value"]
             data[~np.isfinite(data)] = self.interp_kwargs["fill_value"]
+        print("time to broadcast etc: ", time.time() - t0)
         return data
 
     @staticmethod
