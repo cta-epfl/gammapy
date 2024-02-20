@@ -378,37 +378,62 @@ class MapDatasetMaker(Maker):
         kwargs = {"gti": observation.gti}
         kwargs["meta_table"] = self.make_meta_table(observation)
 
+        print("will mask_safe = Map.from_geom(dataset.counts.geom, dtype=bool)")
+        import time
+        t0 = time.time()
         mask_safe = Map.from_geom(dataset.counts.geom, dtype=bool)
+        print("done mask_safe = Map.from_geom(dataset.counts.geom, dtype=bool) in ", time.time() - t0, "s")
         mask_safe.data[...] = True
 
         kwargs["mask_safe"] = mask_safe
 
         if "counts" in self.selection:
+            print("will make_counts(dataset.counts.geom, observation)")
+            t0 = time.time()
             counts = self.make_counts(dataset.counts.geom, observation)
+            print("done make_counts(dataset.counts.geom, observation) in ", time.time() - t0, "s")
         else:
+            print("will make_counts = Map.from_geom(dataset.counts.geom, data=0)")
+            t0 = time.time()
             counts = Map.from_geom(dataset.counts.geom, data=0)
+            print("done make_counts = Map.from_geom(dataset.counts.geom, data=0) in ", time.time() - t0, "s")
         kwargs["counts"] = counts
 
         if "exposure" in self.selection:
+            print("will make_exposure(dataset.exposure.geom, observation)")
+            t0 = time.time()
             exposure = self.make_exposure(dataset.exposure.geom, observation)
+            print("done make_exposure(dataset.exposure.geom, observation) in ", time.time() - t0, "s")
             kwargs["exposure"] = exposure
 
         if "background" in self.selection:
+            print("will make_background(dataset.counts.geom, observation)")
+            t0 = time.time()
             kwargs["background"] = self.make_background(
                 dataset.counts.geom, observation
             )
+            print("done make_background(dataset.counts.geom, observation) in ", time.time() - t0, "s")
 
         if "psf" in self.selection:
+            print("will make_psf(dataset.psf.psf_map.geom, observation)")
+            t0 = time.time()
             psf = self.make_psf(dataset.psf.psf_map.geom, observation)
+            print("done make_psf(dataset.psf.psf_map.geom, observation) in ", time.time() - t0, "s")
             kwargs["psf"] = psf
 
         if "edisp" in self.selection:
             if dataset.edisp.edisp_map.geom.axes[0].name.upper() == "MIGRA":
+                print("will make_edisp(dataset.edisp.edisp_map.geom, observation)")
+                t0 = time.time()
                 edisp = self.make_edisp(dataset.edisp.edisp_map.geom, observation)
+                print("done make_edisp(dataset.edisp.edisp_map.geom, observation) in ", time.time() - t0, "s")
             else:
+                print("will make_edisp_kernel(dataset.edisp.edisp_map.geom, observation)")
+                t0 = time.time()
                 edisp = self.make_edisp_kernel(
                     dataset.edisp.edisp_map.geom, observation
                 )
+                print("done make_edisp_kernel(dataset.edisp.edisp_map.geom, observation) in ", time.time() - t0, "s")
 
             kwargs["edisp"] = edisp
 
