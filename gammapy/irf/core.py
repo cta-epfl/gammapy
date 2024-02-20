@@ -185,16 +185,14 @@ class IRF(metaclass=abc.ABCMeta):
 
     @lazyproperty
     def _interpolate(self):
-        print("will prepare _interpolator")
+        print("will run _interpolator")
         t0 = time.time()
         kwargs = self.interp_kwargs.copy()
         # Allow extrap[olation with in bins
         kwargs["fill_value"] = None
         points = [a.center for a in self.axes]
         points_scale = tuple([a.interp for a in self.axes])
-        print("prepare _interpolator took: ", time.time() - t0)
-
-        print("will create ScaledRegularGridInterpolator")
+        
         t0 = time.time()
         r = ScaledRegularGridInterpolator(
             points,
@@ -202,7 +200,7 @@ class IRF(metaclass=abc.ABCMeta):
             points_scale=points_scale,
             **kwargs,
         )
-        print("time to create ScaledRegularGridInterpolator: ", time.time() - t0)
+        print("time to run _interpolator body: ", time.time() - t0)
         return r
 
     @property
