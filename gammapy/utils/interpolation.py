@@ -83,12 +83,9 @@ class ScaledRegularGridInterpolator:
             values_scaled = np.squeeze(values_scaled)
 
         if axis is None:
-            print("will use RegularGridInterpolator")
-            t0 = time.time()
             self._interpolate = scipy.interpolate.RegularGridInterpolator(
                 points=points_scaled, values=values_scaled, **kwargs
             )
-            print("time to create RegularGridInterpolator: ", time.time() - t0)
         else:
             print("will use interp1d")
             t0 = time.time()

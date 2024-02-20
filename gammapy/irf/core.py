@@ -190,12 +190,17 @@ class IRF(metaclass=abc.ABCMeta):
         kwargs["fill_value"] = None
         points = [a.center for a in self.axes]
         points_scale = tuple([a.interp for a in self.axes])
-        return ScaledRegularGridInterpolator(
+
+        print("will create ScaledRegularGridInterpolator")
+        t0 = time.time()
+        r = ScaledRegularGridInterpolator(
             points,
             self.quantity,
             points_scale=points_scale,
             **kwargs,
         )
+        print("time to create ScaledRegularGridInterpolator: ", time.time() - t0)
+        return r
 
     @property
     def quantity(self):
@@ -284,8 +289,6 @@ class IRF(metaclass=abc.ABCMeta):
         data = self._interpolate(coords_default.values(), method=method)
         print("time to interpolate: ", time.time() - t0)
 
-        print("will broadcast etc in evaluate")
-        t0 = time.time()
         if self.interp_kwargs["fill_value"] is not None:
             idxs = self.axes.coord_to_idx(coords_default, clip=False)
             invalid = np.broadcast_arrays(*[idx == -1 for idx in idxs])
@@ -294,7 +297,6 @@ class IRF(metaclass=abc.ABCMeta):
                 mask = mask.squeeze()
             data[mask] = self.interp_kwargs["fill_value"]
             data[~np.isfinite(data)] = self.interp_kwargs["fill_value"]
-        print("time to broadcast etc: ", time.time() - t0)
         return data
 
     @staticmethod
