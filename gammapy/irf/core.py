@@ -9,6 +9,7 @@ from astropy import units as u
 from astropy.io import fits
 from astropy.table import Table
 from astropy.utils import lazyproperty
+from functools import cached_property
 from gammapy.maps import Map, MapAxes, MapAxis, RegionGeom
 from gammapy.utils.integrate import trapz_loglog
 from gammapy.utils.interpolation import (
@@ -185,7 +186,7 @@ class IRF(metaclass=abc.ABCMeta):
         return self._unit
 
     # @lazyproperty
-    @property
+    @cached_property
     def _interpolate(self):
         print(threading.get_ident(), "will run _interpolator")
         t0 = time.time()
