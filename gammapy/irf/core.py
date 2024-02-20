@@ -2,6 +2,7 @@ import abc
 import logging
 from copy import deepcopy
 from enum import Enum
+import threading
 import time
 import numpy as np
 from astropy import units as u
@@ -185,7 +186,7 @@ class IRF(metaclass=abc.ABCMeta):
 
     @lazyproperty
     def _interpolate(self):
-        print("will run _interpolator")
+        print(threading.get_ident(), self, "will run _interpolator")
         t0 = time.time()
         kwargs = self.interp_kwargs.copy()
         # Allow extrap[olation with in bins
@@ -200,7 +201,7 @@ class IRF(metaclass=abc.ABCMeta):
             points_scale=points_scale,
             **kwargs,
         )
-        print("time to run _interpolator body: ", time.time() - t0)
+        print(threading.get_ident(), self, "time to run _interpolator body: ", time.time() - t0)
         return r
 
     @property
@@ -290,7 +291,7 @@ class IRF(metaclass=abc.ABCMeta):
         print("will data = self._interpolate(coords_default.values(), method=method)") 
         t0 = time.time()
         data = self._interpolate(coord_values, method=method)
-        print("time to interpolate: ", time.time() - t0)
+        print(threading.get_ident(), self, "time to interpolate: ", time.time() - t0)
 
         if self.interp_kwargs["fill_value"] is not None:
             idxs = self.axes.coord_to_idx(coords_default, clip=False)
