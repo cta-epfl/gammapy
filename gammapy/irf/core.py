@@ -287,9 +287,11 @@ class IRF(metaclass=abc.ABCMeta):
             if coord is not None:
                 coords_default[key] = u.Quantity(coord, copy=False)
 
+        coord_values = coords_default.values()
+        
         print("will data = self._interpolate(coords_default.values(), method=method)") 
         t0 = time.time()
-        data = self._interpolate(coords_default.values(), method=method)
+        data = self._interpolate(coord_values, method=method)
         print("time to interpolate: ", time.time() - t0)
 
         if self.interp_kwargs["fill_value"] is not None:
