@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import logging
+import time
 import warnings
 import numpy as np
 from astropy.coordinates import Angle, SkyOffsetFrame
@@ -53,20 +54,26 @@ def make_map_exposure_true_energy(
     map : `~gammapy.maps.WcsNDMap`
         Exposure map
     """
+
+    print("make_map_exposure_true_energy starts")
     if not use_region_center:
         coords, weights = geom.get_wcs_coord_and_weights()
     else:
         coords, weights = geom.get_coord(sparse=True), None
 
     offset = coords.skycoord.separation(pointing)
+
+    print("will exposure = aeff.evaluate(offset=offset, energy_true=coords['energy_true'])")
+    t0 = time.time()
     exposure = aeff.evaluate(offset=offset, energy_true=coords["energy_true"])
+    print("exposure = aeff.evaluate(offset=offset, energy_true=coords['energy_true']) took ", time.time() - t0)
 
     data = (exposure * livetime).to("m2 s")
     meta = {"livetime": livetime, "is_pointlike": aeff.is_pointlike}
 
     if not use_region_center:
         data = np.average(data, axis=1, weights=weights)
-
+    
     return Map.from_geom(geom=geom, data=data.value, unit=data.unit, meta=meta)
 
 

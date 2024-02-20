@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import logging
+import time
 import astropy.units as u
 from astropy.table import Table
 from regions import PointSkyRegion
@@ -221,6 +222,7 @@ class MapDatasetMaker(Maker):
         bkg = observation.bkg
 
         if isinstance(bkg, Map):
+            print("will bkg.interp_to_geom(geom=geom, preserve_counts=True)")
             return bkg.interp_to_geom(geom=geom, preserve_counts=True)
 
         use_region_center = getattr(self, "use_region_center", True)
@@ -231,7 +233,9 @@ class MapDatasetMaker(Maker):
         if self.background_pad_offset and bkg.has_offset_axis:
             bkg = bkg.pad(1, mode="edge", axis_name="offset")
 
-        return make_map_background_irf(
+        print("will make_map_background_irf")
+        t0 = time.time()
+        r = make_map_background_irf(
             pointing=observation.pointing,
             ontime=observation.observation_time_duration,
             bkg=bkg,
@@ -240,6 +244,8 @@ class MapDatasetMaker(Maker):
             use_region_center=use_region_center,
             obstime=observation.tmid,
         )
+        print("done make_map_background_irf in ", time.time() - t0, "s")
+        return r
 
     def make_edisp(self, geom, observation):
         """Make energy dispersion map.
@@ -378,25 +384,16 @@ class MapDatasetMaker(Maker):
         kwargs = {"gti": observation.gti}
         kwargs["meta_table"] = self.make_meta_table(observation)
 
-        print("will mask_safe = Map.from_geom(dataset.counts.geom, dtype=bool)")
-        import time
-        t0 = time.time()
         mask_safe = Map.from_geom(dataset.counts.geom, dtype=bool)
-        print("done mask_safe = Map.from_geom(dataset.counts.geom, dtype=bool) in ", time.time() - t0, "s")
         mask_safe.data[...] = True
 
         kwargs["mask_safe"] = mask_safe
 
         if "counts" in self.selection:
-            print("will make_counts(dataset.counts.geom, observation)")
             t0 = time.time()
             counts = self.make_counts(dataset.counts.geom, observation)
-            print("done make_counts(dataset.counts.geom, observation) in ", time.time() - t0, "s")
         else:
-            print("will make_counts = Map.from_geom(dataset.counts.geom, data=0)")
-            t0 = time.time()
             counts = Map.from_geom(dataset.counts.geom, data=0)
-            print("done make_counts = Map.from_geom(dataset.counts.geom, data=0) in ", time.time() - t0, "s")
         kwargs["counts"] = counts
 
         if "exposure" in self.selection:
@@ -415,10 +412,7 @@ class MapDatasetMaker(Maker):
             print("done make_background(dataset.counts.geom, observation) in ", time.time() - t0, "s")
 
         if "psf" in self.selection:
-            print("will make_psf(dataset.psf.psf_map.geom, observation)")
-            t0 = time.time()
             psf = self.make_psf(dataset.psf.psf_map.geom, observation)
-            print("done make_psf(dataset.psf.psf_map.geom, observation) in ", time.time() - t0, "s")
             kwargs["psf"] = psf
 
         if "edisp" in self.selection:
@@ -428,12 +422,9 @@ class MapDatasetMaker(Maker):
                 edisp = self.make_edisp(dataset.edisp.edisp_map.geom, observation)
                 print("done make_edisp(dataset.edisp.edisp_map.geom, observation) in ", time.time() - t0, "s")
             else:
-                print("will make_edisp_kernel(dataset.edisp.edisp_map.geom, observation)")
-                t0 = time.time()
                 edisp = self.make_edisp_kernel(
                     dataset.edisp.edisp_map.geom, observation
                 )
-                print("done make_edisp_kernel(dataset.edisp.edisp_map.geom, observation) in ", time.time() - t0, "s")
 
             kwargs["edisp"] = edisp
 
