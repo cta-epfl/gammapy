@@ -187,7 +187,7 @@ class IRF(metaclass=abc.ABCMeta):
     # @lazyproperty
     @property
     def _interpolate(self):
-        print(threading.get_ident(), str(self), "will run _interpolator")
+        print(threading.get_ident(), "will run _interpolator")
         t0 = time.time()
         kwargs = self.interp_kwargs.copy()
         # Allow extrap[olation with in bins
@@ -202,7 +202,7 @@ class IRF(metaclass=abc.ABCMeta):
             points_scale=points_scale,
             **kwargs,
         )
-        print(threading.get_ident(), str(self), "time to run _interpolator body: ", time.time() - t0)
+        print(threading.get_ident(), "time to run _interpolator body: ", time.time() - t0)
         return r
 
     @property
@@ -292,7 +292,7 @@ class IRF(metaclass=abc.ABCMeta):
         print("will data = self._interpolate(coords_default.values(), method=method)") 
         t0 = time.time()
         data = self._interpolate(coord_values, method=method)
-        print(threading.get_ident(), str(self), "time to interpolate: ", time.time() - t0)
+        print(threading.get_ident(), "time to interpolate: ", time.time() - t0)
 
         if self.interp_kwargs["fill_value"] is not None:
             idxs = self.axes.coord_to_idx(coords_default, clip=False)
