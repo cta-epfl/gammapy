@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """Interpolation utilities"""
 from itertools import compress
+import time
 import numpy as np
 import scipy.interpolate
 from astropy import units as u
@@ -82,13 +83,19 @@ class ScaledRegularGridInterpolator:
             values_scaled = np.squeeze(values_scaled)
 
         if axis is None:
+            print("will use RegularGridInterpolator")
+            t0 = time.time()
             self._interpolate = scipy.interpolate.RegularGridInterpolator(
                 points=points_scaled, values=values_scaled, **kwargs
             )
+            print("time to create RegularGridInterpolator: ", time.time() - t0)
         else:
+            print("will use interp1d")
+            t0 = time.time()
             self._interpolate = scipy.interpolate.interp1d(
                 points_scaled[0], values_scaled, axis=axis
             )
+            print("time to create interp1d: ", time.time() - t0)
 
     def _scale_points(self, points):
         points_scaled = [scale(p) for p, scale in zip(points, self.scale_points)]
