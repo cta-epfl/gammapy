@@ -184,7 +184,8 @@ class IRF(metaclass=abc.ABCMeta):
         """Map unit (`~astropy.units.Unit`)"""
         return self._unit
 
-    @lazyproperty
+    # @lazyproperty
+    @property
     def _interpolate(self):
         print(threading.get_ident(), self, "will run _interpolator")
         t0 = time.time()
