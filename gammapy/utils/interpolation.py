@@ -118,17 +118,17 @@ class ScaledRegularGridInterpolator:
         """
         points = self._scale_points(points=points)
 
-        print("will interpolate with ScaledRegularGridInterpolator")
+        print("will interpolate with ScaledRegularGridInterpolator, self._interpolate: ", self._interpolate, self.axis)
         t0 = time.time()
         if self.axis is None:
             points = np.broadcast_arrays(*points)
-            points_interp = np.stack([_.flat for _ in points]).T
+            points_interp = np.stack([_.flat for _ in points]).T            
             values = self._interpolate(points_interp, method, **kwargs)
             values = self.scale.inverse(values.reshape(points[0].shape))
         else:
             values = self._interpolate(points[0])
             values = self.scale.inverse(values)
-        print("time to interpolate with ScaledRegularGridInterpolator: ", time.time() - t0)
+        print("time to interpolate with ScaledRegularGridInterpolator: ", time.time() - t0, self._interpolate, self.axis)
 
         if clip:
             values = np.clip(values, 0, np.inf)
