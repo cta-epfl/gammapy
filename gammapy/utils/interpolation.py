@@ -126,7 +126,6 @@ class ScaledRegularGridInterpolator:
             values = self._interpolate(points_interp, method, **kwargs)
             print("time to interpolate with ScaledRegularGridInterpolator: ", time.time() - t0, self._interpolate, "points_interp: ", len(points_interp))
             values = self.scale.inverse(values.reshape(points[0].shape))
-            print("time to inverse interpolate with ScaledRegularGridInterpolator: ", time.time() - t0, self._interpolate)
         else:
             values = self._interpolate(points[0])
             values = self.scale.inverse(values)
